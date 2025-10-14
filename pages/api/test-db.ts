@@ -1,5 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
-import { supabase } from '../../lib/supabase'
+import { createClient } from '@supabase/supabase-js'
+
+// Create a Supabase client with service role key for testing
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  throw new Error('Missing environment variables for Supabase')
+}
+
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,17 +20,17 @@ export default async function handler(
   }
 
   try {
-    // Test database connection
-    const { data, error } = await supabase
+    // Test database connection with service role key (bypasses RLS)
+    const { data: orgs, error: orgsError } = await supabase
       .from('organizations')
       .select('id, name, description')
       .limit(5)
 
-    if (error) {
-      console.error('Database error:', error)
+    if (orgsError) {
+      console.error('Organizations query error:', orgsError)
       return res.status(500).json({ 
-        error: 'Database connection failed',
-        details: error.message 
+        error: 'Organizations query failed',
+        details: orgsError.message 
       })
     }
 
@@ -78,7 +88,7 @@ export default async function handler(
       success: true,
       message: 'Database connection successful',
       data: {
-        organizations: data,
+        organizations: orgs,
         products,
         ingredients,
         tables,

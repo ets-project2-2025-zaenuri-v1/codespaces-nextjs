@@ -667,10 +667,9 @@ GROUP BY DATE(o.created_at), o.organization_id, o.outlet_id
 ORDER BY date DESC;
 
 CREATE VIEW v_top_items AS
-SELECT 
+SELECT
   p.name as product_name,
   p.id as product_id,
-  oi.product_id,
   COUNT(*) as total_orders,
   SUM(oi.quantity) as total_quantity,
   SUM(oi.total) as total_revenue,
@@ -679,7 +678,7 @@ FROM order_items oi
 JOIN orders o ON oi.order_id = o.id
 JOIN products p ON oi.product_id = p.id
 WHERE o.payment_status = 'paid'
-GROUP BY p.id, p.name, oi.product_id, o.organization_id
+GROUP BY p.id, p.name, o.organization_id
 ORDER BY total_quantity DESC;
 
 CREATE VIEW v_stock_critical AS

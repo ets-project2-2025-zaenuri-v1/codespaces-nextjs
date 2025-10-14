@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Head from 'next/head'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
+import ProtectedRoute from '../components/protected-route'
 import { 
   ShoppingCart, 
   Users, 
@@ -13,7 +14,8 @@ import {
   Plus,
   BarChart3,
   ChefHat,
-  Table
+  Table,
+  User
 } from 'lucide-react'
 
 export default function Dashboard() {
@@ -24,13 +26,8 @@ export default function Dashboard() {
   useEffect(() => {
     if (!isLoaded) return
     
-    if (!user) {
-      router.push('/sign-in')
-      return
-    }
-    
     setLoading(false)
-  }, [user, isLoaded, router])
+  }, [isLoaded])
 
   if (!isLoaded || loading) {
     return (
@@ -40,12 +37,8 @@ export default function Dashboard() {
     )
   }
 
-  if (!user) {
-    return null
-  }
-
   return (
-    <>
+    <ProtectedRoute>
       <Head>
         <title>Dashboard - Pempek POS</title>
         <meta name="description" content="Pempek POS Dashboard" />
@@ -67,13 +60,24 @@ export default function Dashboard() {
               
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-slate">
-                  Welcome, {user.firstName || user.emailAddresses[0]?.emailAddress}
+                  Welcome, {user?.firstName || user?.emailAddresses?.[0]?.emailAddress || 'User'}
                 </span>
                 <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-sm">
-                    {(user.firstName || user.emailAddresses[0]?.emailAddress || 'U').charAt(0).toUpperCase()}
+                    {(user?.firstName || user?.emailAddresses?.[0]?.emailAddress || 'U')?.charAt(0)?.toUpperCase()}
                   </span>
                 </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => {
+                    // Redirect to sign-in page when clicking Account
+                    window.location.href = '/sign-in'
+                  }}
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Account
+                </Button>
               </div>
             </div>
           </div>
@@ -269,6 +273,6 @@ export default function Dashboard() {
           </Card>
         </main>
       </div>
-    </>
+    </ProtectedRoute>
   )
 }

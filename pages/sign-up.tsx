@@ -1,12 +1,12 @@
-import { SignIn } from '@clerk/nextjs'
+import { SignUp } from '@clerk/nextjs'
 import Head from 'next/head'
 
-export default function SignInPage() {
+export default function SignUpPage() {
   return (
     <>
       <Head>
-        <title>Masuk - Pempek POS</title>
-        <meta name="description" content="Masuk ke akun Pempek POS Anda" />
+        <title>Daftar - Pempek POS</title>
+        <meta name="description" content="Buat akun Pempek POS Anda" />
       </Head>
 
       <div className="min-h-screen flex items-center justify-center bg-ivory py-12 px-4 sm:px-6 lg:px-8">
@@ -21,15 +21,15 @@ export default function SignInPage() {
               </h1>
             </div>
             <h2 className="text-xl font-semibold text-slate">
-              Masuk ke Akun Anda
+              Buat Akun Anda
             </h2>
             <p className="mt-2 text-sm text-slate">
-              Masukkan email dan password Anda untuk mengakses dashboard
+              Daftar untuk mulai mengelola kedai pempek Anda
             </p>
           </div>
           
           <div className="bg-white p-8 rounded-xl shadow-md">
-            <SignIn 
+            <SignUp 
               routing="hash"
               redirectUrl="/dashboard"
               appearance={{
@@ -49,9 +49,9 @@ export default function SignInPage() {
           
           <div className="text-center">
             <p className="text-sm text-slate">
-              Belum punya akun?{' '}
-              <a href="/sign-up" className="font-medium text-primary hover:text-primary/90">
-                Daftar sekarang
+              Sudah punya akun?{' '}
+              <a href="/sign-in" className="font-medium text-primary hover:text-primary/90">
+                Masuk sekarang
               </a>
             </p>
           </div>

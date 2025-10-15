@@ -2,8 +2,18 @@ import '../global.css'
 import type { AppProps } from 'next/app'
 import { ClerkProvider } from '@clerk/nextjs'
 import { dark } from '@clerk/themes'
+import { useEffect } from 'react'
 
 function MyApp({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    // Initialize ERUDA in development mode
+    if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+      import('eruda').then((eruda) => {
+        eruda.default.init()
+      })
+    }
+  }, [])
+
   return (
     <ClerkProvider
       appearance={{

@@ -33,9 +33,6 @@ export default async function handler(
       })
     }
 
-    // For now, we'll create a simple user record without fetching details from Clerk
-    // In a real app, you might want to use Clerk's backend API to get user details
-    
     // Check if user exists in our users table
     const { data: existingUser, error: userError } = await supabase
       .from('users')
@@ -54,6 +51,48 @@ export default async function handler(
 
     // If user doesn't exist, create a new user record
     if (!existingUser) {
+      // First, create or get the default organization
+      const { data: org, error: orgError } = await supabase
+        .from('organizations')
+        .select('*')
+        .eq('slug', 'default')
+        .single()
+
+      let organizationId = '00000000-0000-0000-0000-000000000001' // Default fallback
+
+      if (orgError && orgError.code === 'PGRST116') {
+        // Organization doesn't exist, create it
+        const { data: newOrg, error: createOrgError } = await supabase
+          .from('organizations')
+          .insert([
+            {
+              name: 'Default Organization',
+              slug: 'default'
+            }
+          ])
+          .select()
+          .single()
+
+        if (createOrgError) {
+          console.error('Organization creation error:', createOrgError)
+          return res.status(500).json({ 
+            error: 'Gagal membuat organization',
+            details: createOrgError.message 
+          })
+        }
+
+        organizationId = newOrg.id
+      } else if (org) {
+        organizationId = org.id
+      } else if (orgError) {
+        console.error('Organization query error:', orgError)
+        return res.status(500).json({ 
+          error: 'Gagal mengambil data organization',
+          details: orgError.message 
+        })
+      }
+
+      // Create the user record
       const { data: newUser, error: createUserError } = await supabase
         .from('users')
         .insert([
@@ -63,7 +102,7 @@ export default async function handler(
             first_name: null,
             last_name: null,
             role: 'admin', // Default role for new users
-            organization_id: '00000000-0000-0000-0000-000000000001' // Default organization
+            organization_id: organizationId
           }
         ])
         .select()
@@ -74,6 +113,25 @@ export default async function handler(
         return res.status(500).json({ 
           error: 'Gagal membuat user baru',
           details: createUserError.message 
+        })
+      }
+
+      // Create org_members record
+      const { error: memberError } = await supabase
+        .from('org_members')
+        .insert([
+          {
+            organization_id: organizationId,
+            user_id: newUser.id,
+            role: 'admin'
+          }
+        ])
+
+      if (memberError) {
+        console.error('Org member creation error:', memberError)
+        return res.status(500).json({ 
+          error: 'Gagal membuat org member',
+          details: memberError.message 
         })
       }
 

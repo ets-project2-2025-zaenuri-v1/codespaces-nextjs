@@ -1,4 +1,4 @@
-import { useUser } from '@clerk/nextjs'
+import { useUserSync } from '../hooks/useUserSync'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import Head from 'next/head'
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react'
 
 export default function Dashboard() {
-  const { user, isLoaded } = useUser()
+  const { user, isLoaded } = useUserSync()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
 
